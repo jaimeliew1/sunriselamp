@@ -26,15 +26,6 @@ def get_hue(dt_norm):
     return wheel(pos)
 
 
-def rainbow_cycle(wait):
-    for j in range(255):
-        for i in range(NUM_PIXELS):
-            pixel_index = (i * 256 // (NUM_PIXELS * 4)) + j
-            pixels[i] = wheel(pixel_index & 255)
-        pixels.show()
-        time.sleep(wait)
-
-
 def run():
     pixels = neopixel.NeoPixel(
         PIXEL_PIN,
