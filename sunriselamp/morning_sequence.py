@@ -1,60 +1,64 @@
 import time
+import numpy as np
 
-# import numpy as np # numpy isn't correctly configured on the raspberrypi
-import math
 import board
 import neopixel
+from pathlib import Path
+from sunriselamp.backend import wheel, off
+
+PIXEL_PIN = board.D18
+NUM_PIXELS = 24
+MAX_BRIGHTNESS = 0.9
+WAIT = 0.01
+T_END = 2 * 60 * 60
+
+this_dir = Path(__file__).parent
+sequence_table = np.loadtxt(this_dir / "sunrise_sequence.txt", delimiter=",")
+brightness_table = np.loadtxt(this_dir / "brightness_sequence.txt", delimiter=",")
 
 
-pixel_pin = board.D18
-num_pixels = 24
-MAX_BRIGHTNESS = 0.7
-
-pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=0.2, auto_write=False, pixel_order=neopixel.RGB
-)
+def get_brightness(dt_norm):
+    return np.interp(dt_norm, brightness_table[:, 0], brightness_table[:, 1])
 
 
-def wheel(pos):
-    # Input a value 0 to 255 to get a color value.
-    # The colours are a transition r - g - b - back to r.
-    if pos < 0 or pos > 255:
-        r = g = b = 0
-    elif pos < 85:
-        r = int(pos * 3)
-        g = int(255 - pos * 3)
-        b = 0
-    elif pos < 170:
-        pos -= 85
-        r = int(255 - pos * 3)
-        g = 0
-        b = int(pos * 3)
-    else:
-        pos -= 170
-        r = 0
-        g = int(pos * 3)
-        b = int(255 - pos * 3)
-    return (r, g, b)
+def get_hue(dt_norm):
+    pos = np.interp(dt_norm, sequence_table[:, 0], sequence_table[:, 1])
+    return wheel(pos)
 
 
 def rainbow_cycle(wait):
     for j in range(255):
-        for i in range(num_pixels):
-            pixel_index = (i * 256 // (num_pixels * 4)) + j
+        for i in range(NUM_PIXELS):
+            pixel_index = (i * 256 // (NUM_PIXELS * 4)) + j
             pixels[i] = wheel(pixel_index & 255)
         pixels.show()
         time.sleep(wait)
 
 
 def run():
-    t_start = time.time()
-    for i in range(283):
+    pixels = neopixel.NeoPixel(
+        PIXEL_PIN,
+        NUM_PIXELS,
+        brightness=0.2,
+        auto_write=False,
+        pixel_order=neopixel.RGB,
+    )
 
+    t_start = time.time()
+    dt = time.time() - t_start
+    while dt < T_END:
+        dt_norm = dt / T_END
+        print(dt_norm)
+        pixels.brightness = MAX_BRIGHTNESS * get_brightness(dt_norm)
+        hue = get_hue(dt_norm)
+
+        for i in range(NUM_PIXELS):
+            pixels[i] = hue
+        pixels.show()
+        time.sleep(WAIT)
         dt = time.time() - t_start
-        print(dt)
-        brightness = MAX_BRIGHTNESS * math.sin(dt / 7200 * math.pi)
-        pixels.brightness = brightness
-        rainbow_cycle(0.1)
+
+    off()
 
 
 if __name__ == "__main__":
