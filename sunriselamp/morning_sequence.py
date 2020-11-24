@@ -46,11 +46,16 @@ def rainbow_cycle(wait):
         time.sleep(wait)
 
 
-t_start = time.time()
-for i in range(283):
+def run():
+    t_start = time.time()
+    for i in range(283):
 
-    dt = time.time() - t_start
-    print(dt)
-    brightness = MAX_BRIGHTNESS * math.sin(dt / 7200 * math.pi)
-    pixels.brightness = brightness
-    rainbow_cycle(0.1)
+        dt = time.time() - t_start
+        print(dt)
+        brightness = MAX_BRIGHTNESS * math.sin(dt / 7200 * math.pi)
+        pixels.brightness = brightness
+        rainbow_cycle(0.1)
+
+
+if __name__ == "__main__":
+    run()
