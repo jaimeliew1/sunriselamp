@@ -1,6 +1,7 @@
 import click
 from sunriselamp import backend
 from sunriselamp import morning_sequence
+from sunriselamp import circle
 
 
 @click.group()
@@ -13,7 +14,8 @@ def sunrise():
     """
     Sunrise sequence.
     """
-    morning_sequence.run()
+    # morning_sequence.run()
+    circle.run()
 
 
 @cli.command()
