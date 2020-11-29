@@ -28,7 +28,7 @@ def PDF(x, sigma, mu):
     return p ** 2
 
 
-kernel = lambda x: PDF(x, 0.7833936678835931, 2)  # / 0.093532950
+kernel = lambda x: PDF(x, 0.7833936678835931, 2)
 
 
 def fade(t, duration):
@@ -66,12 +66,12 @@ def run():
         for i, (hue, brightness) in enumerate(zip(hues, brightnesses)):
             pixels[i] = [int(h * brightness) for h in hue]
 
-            pixels.brightness = 1
-            pixels.show()
-            time.sleep(WAIT)
-            dt = time.time() - t_start
+        pixels.brightness = 1
+        pixels.show()
+        time.sleep(WAIT)
+        dt = time.time() - t_start
 
-            off()
+    off()
 
 
 if __name__ == "__main__":
