@@ -5,20 +5,16 @@ import time
 from sunriselamp.backend import wheel, off
 
 pixel_pin = board.D18
-NUM_PIXELS = 24
+NUM_PIXELS = 300
 WAIT = 0.01
 pixels = neopixel.NeoPixel(
-    pixel_pin, NUM_PIXELS, brightness=0.2, auto_write=False, pixel_order=neopixel.RGB
+    pixel_pin, NUM_PIXELS, brightness=0.2, auto_write=False, pixel_order=neopixel.RGBW
 )
 
 FADE_T = 120
 duration = 7200
-color_f = 1 / 8  # Hz
-ring_f = 1 / 10  # Hz
-# FADE_T = 1.3
-# duration = 3
-# color_f = 1 / 8  # Hz
-# ring_f = 1 / 1  # Hz
+color_f = 1 / 20  # Hz
+ring_f = 1 / 60  # Hz
 
 
 def PDF(x, sigma, mu):
@@ -28,7 +24,11 @@ def PDF(x, sigma, mu):
     return p ** 2
 
 
-kernel = lambda x: PDF(x, 0.7833936678835931, 2)
+# for 24 leds
+# kernel = lambda x: PDF(x, 0.7833936678835931, 2)
+
+# for 300 leds
+kernel = lambda x: 1 - x / 300
 
 
 def fade(t, duration):
@@ -71,7 +71,7 @@ def run():
         time.sleep(WAIT)
         dt = time.time() - t_start
 
-    off()
+    pixels.deinit()
 
 
 if __name__ == "__main__":

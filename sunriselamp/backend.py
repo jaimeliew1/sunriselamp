@@ -4,11 +4,11 @@ import neopixel
 import time
 
 pixel_pin = board.D18
-NUM_PIXELS = 24
+NUM_PIXELS = 300
 WAIT = 0.5
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, NUM_PIXELS, brightness=0.2, auto_write=False, pixel_order=neopixel.RGB
+    pixel_pin, NUM_PIXELS, brightness=0.2, auto_write=False, pixel_order=neopixel.RGBW
 )
 
 
@@ -32,14 +32,14 @@ def wheel(pos):
         r = 0
         g = int(pos * 3)
         b = int(255 - pos * 3)
-    return (r, g, b)
+    return (r, g, b, 0)
 
 
 def rainbow_cycle(wait, brightness_range=[1, 1]):
-    for j in range(255):
+    for j in range(0, 255, 4):
         brightness = np.interp(j, [0, 255], brightness_range)
         for i in range(NUM_PIXELS):
-            pixel_index = (i * 256 // (NUM_PIXELS * 4)) + j
+            pixel_index = (i * 256 // (NUM_PIXELS * 1)) + j
             pixels[i] = wheel(pixel_index & 255)
         pixels.brightness = brightness
         pixels.show()
@@ -48,19 +48,19 @@ def rainbow_cycle(wait, brightness_range=[1, 1]):
 
 def off():
     for pixel in pixels:
-        pixel = (0, 0, 0)
+        pixel = (0, 0, 0, 0)
     pixels.show()
 
 
 def set(angle):
-    r, g, b = wheel(angle)
+    r, g, b, w = wheel(angle)
     pixels.brightness = 0.5
     for i in range(NUM_PIXELS):
-        pixels[i] = (r, g, b)
+        pixels[i] = (r, g, b, w)
         pixels.show()
 
 
 def test():
-    rainbow_cycle(0.001, brightness_range=[0, 1])
-    rainbow_cycle(0.001, brightness_range=[1, 0])
-    off()
+    rainbow_cycle(0.000, brightness_range=[0, 1])
+    rainbow_cycle(0.000, brightness_range=[1, 0])
+    pixels.deinit()
